@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Typing JP — 日本語タイピング練習</title>
+  <meta name="description" content="Japanese typing practice game. Type hiragana in romaji with multiple valid inputs (shi/si, tsu/tu, chi/ti). Three modes: Practice, Time Attack, Endurance." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <span class="app-title">Typing JP</span>
+    <button id="lang-btn" title="Switch language / 言語切替">EN</button>
+  </header>
+
+  <main>
+    <!-- Mode tabs -->
+    <div class="tab-bar" role="tablist" aria-label="Game mode">
+      <button id="tab-practice"   class="tab-mode active" role="tab">練習</button>
+      <button id="tab-timeattack" class="tab-mode"        role="tab">タイムアタック</button>
+      <button id="tab-endurance"  class="tab-mode"        role="tab">耐久</button>
+    </div>
+
+    <!-- Word set tabs -->
+    <div class="tab-bar" role="tablist" aria-label="Word set">
+      <button id="tab-basic"     class="tab-set" role="tab">基本ひらがな</button>
+      <button id="tab-words"     class="tab-set active" role="tab">単語</button>
+      <button id="tab-sentences" class="tab-set" role="tab">文章</button>
+    </div>
+
+    <!-- Game card -->
+    <div class="game-card" id="game-card">
+      <!-- Target kana -->
+      <div id="kana-display" aria-label="Target text" aria-live="polite">—</div>
+
+      <!-- Hint and meaning -->
+      <div class="word-meta">
+        <div id="hint-display"></div>
+        <div id="meaning-display"></div>
+      </div>
+
+      <!-- Typed input display -->
+      <div class="input-box" id="input-display" aria-live="polite">
+        <span class="cursor">|</span>
+      </div>
+
+      <!-- Hidden real input for mobile IME -->
+      <input id="input-area" type="text" autocomplete="off" autocorrect="off"
+             autocapitalize="off" spellcheck="false" inputmode="latin"
+             aria-label="Type here" tabindex="0" />
+
+      <!-- Results overlay -->
+      <div id="overlay" class="hidden" role="dialog" aria-modal="true"></div>
+
+      <!-- Keyboard shortcut hint shown when ready -->
+      <p class="ready-hint" id="ready-hint">スペースキーでスタート</p>
+    </div>
+
+    <!-- Stats bar -->
+    <div class="stats-bar" aria-label="Statistics">
+      <div class="stat-item">
+        <span class="stat-label" id="label-wpm">WPM</span>
+        <span class="stat-value" id="wpm-value">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label" id="label-accuracy">正確率</span>
+        <span class="stat-value" id="acc-value">100%</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label" id="label-extra"></span>
+        <span class="stat-value" id="extra-value">—</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label" id="label-hs">ハイスコア</span>
+        <span class="stat-value" id="hs-value">0</span>
+      </div>
+    </div>
+
+    <!-- Start / Stop button -->
+    <div class="controls">
+      <button id="btn-start" class="btn-primary">スタート</button>
+    </div>
+
+    <!-- Mobile hint -->
+    <p class="mobile-hint">タップしてキーボードを開く</p>
+  </main>
+
+  <footer>
+    <p>
+      Made by <a href="https://sen.ltd" target="_blank" rel="noopener">SEN LLC</a> ·
+      <a href="https://github.com/masaru87/typing-jp" target="_blank" rel="noopener">GitHub</a>
+    </p>
+  </footer>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
