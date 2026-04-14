@@ -35,3 +35,10 @@ npm test
 ## ライセンス
 
 MIT. See [LICENSE](./LICENSE).
+
+<!-- sen-publish:links -->
+## Links
+
+- 🌐 Demo: https://sen.ltd/portfolio/typing-jp/
+- 📝 dev.to: https://dev.to/sendotltd/building-a-japanese-typing-game-that-accepts-every-valid-romaji-variant-g42
+<!-- /sen-publish:links -->
