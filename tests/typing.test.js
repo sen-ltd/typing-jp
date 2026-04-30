@@ -165,6 +165,39 @@ describe('tokenize', () => {
     assert.ok(nToken.romaji.includes('n'), 'n before consonant should be allowed');
   });
 
+  it('allows m for ん before ま行 (Hepburn labial assimilation)', () => {
+    // しんま (test stub): ん followed by ま → 'm' is a third option
+    const tokens = tokenize('しんま');
+    const nToken = tokens[1];
+    assert.equal(nToken.kana, 'ん');
+    assert.ok(nToken.romaji.includes('n'),  'n still allowed');
+    assert.ok(nToken.romaji.includes('nn'), 'nn still allowed');
+    assert.ok(nToken.romaji.includes('m'),  'm should be allowed before ま');
+  });
+
+  it('allows m for ん before ば行', () => {
+    const tokens = tokenize('しんぶん'); // 新聞 — ん before ぶ
+    const firstN = tokens[1];
+    assert.equal(firstN.kana, 'ん');
+    assert.ok(firstN.romaji.includes('m'), 'm should be allowed before ぶ (ば行)');
+    // The trailing ん has no following kana → m is NOT added
+    const lastN = tokens[3];
+    assert.equal(lastN.kana, 'ん');
+    assert.ok(!lastN.romaji.includes('m'), 'm should NOT be added at word end');
+  });
+
+  it('allows m for ん before ぱ行', () => {
+    const tokens = tokenize('てんぷら'); // 天ぷら — ん before ぷ
+    const nToken = tokens[1];
+    assert.ok(nToken.romaji.includes('m'), 'm should be allowed before ぷ (ぱ行)');
+  });
+
+  it('does NOT allow m for ん before non-labial consonants', () => {
+    const tokens = tokenize('ほんき'); // ん before き (k is not labial)
+    const nToken = tokens[1];
+    assert.ok(!nToken.romaji.includes('m'), 'm should not be added before non-labial');
+  });
+
   it('returns empty array for empty string', () => {
     assert.deepEqual(tokenize(''), []);
   });

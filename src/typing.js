@@ -136,11 +136,16 @@ export function tokenize(hiraganaStr) {
       continue;
     }
 
-    // ん before vowel or 'y': only 'nn' is valid (prevents ambiguity)
+    // ん before vowel or 'y': only 'nn' is valid (prevents ambiguity).
+    // ん before m/b/p (ま行/ば行/ぱ行): allow 'm' in addition to 'n'/'nn'
+    // (Hepburn-style "kombanwa", "shimbun", "tempura" — IME accepts the
+    // labial-assimilated 'm' and produces ん just the same).
     if (ch === 'ん') {
       const after = hiraganaStr[i + 1];
       if (after && ('あいうえおやゆよ'.includes(after) || SMALL_KANA.has(after))) {
         tokens.push({ kana: ch, romaji: ['nn'] });
+      } else if (after && 'まみむめもばびぶべぼぱぴぷぺぽ'.includes(after)) {
+        tokens.push({ kana: ch, romaji: ['n', 'nn', 'm'] });
       } else {
         tokens.push({ kana: ch, romaji: ['n', 'nn'] });
       }

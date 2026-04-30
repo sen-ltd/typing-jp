@@ -95,6 +95,12 @@ function renderUI() {
 
   // High score
   el.hsValue.textContent = getHighScore(state.mode, state.wordSet);
+
+  // Ready hint visible only in 'ready' phase (not while typing or after end)
+  if (el.readyHint) {
+    el.readyHint.textContent = t('statusReady');
+    el.readyHint.style.display = state.phase === 'ready' ? '' : 'none';
+  }
 }
 
 function renderKanaDisplay() {
@@ -391,6 +397,13 @@ function handleKeyDown(e) {
     return;
   }
   if (state.phase === 'playing') {
+    // Prevent the keystroke from also landing in the focused #input-area
+    // element, which would re-fire as an `input` event and double-count.
+    // The `input` listener stays in place for paste / mobile IME paths
+    // where keydown alone isn't sufficient.
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault();
+    }
     handleInput(e);
   }
 }
@@ -457,6 +470,7 @@ function init() {
   el.hsValue = document.getElementById('hs-value');
   el.overlay = document.getElementById('overlay');
   el.langBtn = document.getElementById('lang-btn');
+  el.readyHint = document.getElementById('ready-hint');
 
   // Event: mode tabs
   el.tabPractice.addEventListener('click', () => setMode('practice'));
