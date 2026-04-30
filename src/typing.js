@@ -122,14 +122,21 @@ export function tokenize(hiraganaStr) {
       }
 
       if (nextRomaji) {
-        const doubled = nextRomaji.map(r => {
+        // っ contributes only the doubling consonant (e.g., 'k' for っこ);
+        // the next kana keeps its own token with its own romaji ('ko' for こ).
+        // Combined, "っこ" types as "kko" = 'k' (っ) + 'ko' (こ).
+        // For vowel-leading next kana (rare: っあ etc.) where there is no
+        // doubling consonant, fall back to the literal vowel — typing it
+        // twice produces the geminate effect.
+        const doubled = [];
+        for (const r of nextRomaji) {
           const lc = leadingConsonant(r);
-          // 'n' case: nni, etc.
-          return lc ? lc + r : r;
-        });
+          const variant = lc !== null ? lc : r;
+          if (!doubled.includes(variant)) doubled.push(variant);
+        }
         tokens.push({ kana: ch, romaji: doubled });
       } else {
-        // Fallback to literal
+        // Fallback to literal (no next kana).
         tokens.push({ kana: ch, romaji: [...ROMAJI_MAP['っ']] });
       }
       i++;

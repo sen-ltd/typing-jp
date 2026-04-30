@@ -123,25 +123,74 @@ describe('tokenize', () => {
   });
 
   it('handles っ by doubling next consonant — っか', () => {
+    // Two tokens: っ (just the doubling consonant) + か (its own romaji).
+    // Combined typing "kka" = 'k' (っ) + 'ka' (か).
     const tokens = tokenize('っか');
     assert.equal(tokens.length, 2);
     assert.equal(tokens[0].kana, 'っ');
-    assert.ok(tokens[0].romaji.includes('kka'), `kka missing, got: ${tokens[0].romaji}`);
+    assert.deepEqual(tokens[0].romaji, ['k']);
+    assert.equal(tokens[1].kana, 'か');
+    assert.ok(tokens[1].romaji.includes('ka'));
   });
 
-  it('handles っ before し — produces sshi/ssi', () => {
+  it('handles っ before し — k single consonant for both si/shi variants', () => {
     const tokens = tokenize('っし');
     assert.equal(tokens[0].kana, 'っ');
-    const doubled = tokens[0].romaji;
-    assert.ok(doubled.some(r => r.startsWith('ss')), `Expected ss*, got: ${doubled}`);
+    // 'si' → 's', 'shi' → 's' (deduped)
+    assert.deepEqual(tokens[0].romaji, ['s']);
+    assert.equal(tokens[1].kana, 'し');
+    assert.ok(tokens[1].romaji.includes('si') && tokens[1].romaji.includes('shi'));
   });
 
-  it('handles っ before ち — produces tchi/ttchi', () => {
+  it('handles っ before ち — t (Hepburn special: chi → tchi)', () => {
     const tokens = tokenize('っち');
     assert.equal(tokens[0].kana, 'っ');
-    const doubled = tokens[0].romaji;
-    // chi → tchi (t + chi), ti → tti (t + ti)
-    assert.ok(doubled.some(r => r === 'tchi' || r === 'tti'), `Expected tchi or tti, got: ${doubled}`);
+    // Both 'ti' (→t) and 'chi' (→t via the ch-special-case) yield 't'.
+    assert.deepEqual(tokens[0].romaji, ['t']);
+  });
+
+  it('handles っ before yōon (しゃ) — single consonant covers all variants', () => {
+    const tokens = tokenize('っしゃ');
+    assert.equal(tokens[0].kana, 'っ');
+    assert.deepEqual(tokens[0].romaji, ['s']);
+    assert.equal(tokens[1].kana, 'しゃ');
+    assert.ok(tokens[1].romaji.includes('sya'));
+    assert.ok(tokens[1].romaji.includes('sha'));
+  });
+
+  it('がっこう accepts gakkou (regression: previously required gakkokou)', () => {
+    const tokens = tokenize('がっこう');
+    const r = validateInput(tokens, 'gakkou');
+    assert.equal(r.isComplete, true, `expected gakkou to complete がっこう, got ${JSON.stringify(r)}`);
+    assert.equal(r.isCorrect, true);
+  });
+
+  it('がっこう also accepts gakkou step-by-step keystrokes', () => {
+    const tokens = tokenize('がっこう');
+    // Walk each prefix to ensure no intermediate state is rejected.
+    for (const prefix of ['g', 'ga', 'gak', 'gakk', 'gakko', 'gakkou']) {
+      const r = validateInput(tokens, prefix);
+      assert.equal(r.isCorrect, true, `prefix "${prefix}" should be correct, got ${JSON.stringify(r)}`);
+    }
+  });
+
+  it('っち still accepts tchi end-to-end via validateInput (e.g. ぼっち)', () => {
+    const tokens = tokenize('ぼっち');
+    const r = validateInput(tokens, 'botchi');
+    assert.equal(r.isComplete, true, 'botchi should complete ぼっち');
+  });
+
+  it('っつ accepts ttsu and ttu', () => {
+    const tokensA = tokenize('やっつ');
+    assert.equal(validateInput(tokensA, 'yattsu').isComplete, true, 'yattsu should complete やっつ');
+    const tokensB = tokenize('やっつ');
+    assert.equal(validateInput(tokensB, 'yattu').isComplete, true, 'yattu should complete やっつ');
+  });
+
+  it('っしゃ accepts sshya and ssha', () => {
+    const tokens = tokenize('はっしゃ');
+    assert.equal(validateInput(tokens, 'hassha').isComplete, true);
+    assert.equal(validateInput(tokenize('はっしゃ'), 'hassya').isComplete, true);
   });
 
   it('handles ん before vowel requiring nn', () => {
